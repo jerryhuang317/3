@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI 探索之旅 - 发现真实的你</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* 视觉风格：柔和、宁静、治愈 */
+        :root {
+            --primary-color: #00897b; /* 柔和的薄荷绿 */
+            --primary-light: #e0f2f1;
+            --background-color: #f4f8f7; /* 极淡的绿色背景 */
+            --text-dark: #37474f;
+            --text-light: #546e7a;
+            --card-bg: #ffffff;
+            --border-color: #b2dfdb;
+            --shadow: 0 10px 30px rgba(0, 100, 80, 0.08);
+        }
+
+        /* 全局样式 */
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 720px;
+            text-align: center;
+        }
+
+        /* 卡片式布局 */
+        .card {
+            background-color: var(--card-bg);
+            padding: 40px 50px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            display: none; /* 默认隐藏所有卡片 */
+            animation: fadeIn 0.8s ease-in-out;
+            margin-top: 20px;
+        }
+
+        .card.active {
+            display: block; /* 只显示激活的卡片 */
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 文本样式 */
+        h1 {
+            color: var(--primary-color);
+            font-weight: 500;
+            font-size: 2.4em;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: var(--text-dark);
+            font-size: 1.6em;
+            line-height: 1.6;
+            margin-bottom: 35px;
+            font-weight: 400;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            font-weight: 400;
+            margin-top: 0;
+            font-size: 1.4em;
+        }
+
+        h4 {
+            color: var(--primary-color);
+            font-size: 1.25em;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--primary-light);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: var(--text-light);
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        .intro-text {
+            color: var(--text-light);
+            line-height: 1.8;
+            text-align: justify;
+            margin-bottom: 30px;
+        }
+        
+        /* 图像占位符样式 */
+        .image-placeholder {
+            background-color: #e0f2f1;
+            border-radius: 12px;
+            margin: 25px auto;
+            width: 100%;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #546e7a;
+            font-style: italic;
+        }
+
+        /* 按钮样式 */
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+            width: 100%;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(0, 137, 123, 0.2);
+        }
+
+        button:hover {
+            background-color: #00695c;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 137, 123, 0.3);
+        }
+
+        .answer-btn {
+            background-color: var(--card-bg);
+            color: var(--primary-color);
+            border: 2px solid var(--border-color);
+            display: block;
+            text-align: center;
+            box-shadow: none;
+        }
+
+        .answer-btn:hover {
+            background-color: var(--primary-light);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        #restart-btn {
+            margin-top: 30px;
+            background-color: #78909c;
+            box-shadow: 0 4px 15px rgba(120, 144, 156, 0.2);
+        }
+
+        #restart-btn:hover {
+            background-color: #546e7a;
+            box-shadow: 0 6px 20px rgba(120, 144, 156, 0.3);
+        }
+
+        /* 进度条 */
+        #progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        #progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            border-radius: 5px;
+            transition: width 0.4s ease-in-out;
+        }
+        
+        #progress-text {
+            margin-top: 10px;
+            color: var(--text-light);
+            font-size: 0.9em;
+        }
+
+        /* 结果展示区 */
+        #result-details {
+            text-align: left;
+            margin-top: 30px;
+        }
+        
+        #result-details .result-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eeeeee;
+        }
+
+        #result-details p, #result-details li {
+            color: var(--text-light);
+            line-height: 1.9;
+            font-size: 1.05em;
+        }
+
+        #result-details ul {
+            padding-left: 20px;
+            list-style-type: '🌿'; /* 用表情符号做列表标记 */
+            margin-top: 10px;
+        }
+        
+        #result-details li {
+            padding-left: 10px;
+            margin-bottom: 8px;
+        }
+
+        #result-details strong {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        /* 移动设备适配 */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .card {
+                padding: 30px 25px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            h2 {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 初始欢迎页面 -->
+        <div id="start-screen" class="card active">
+            <h1>MBTI 探索之旅</h1>
+            <p class="subtitle">发现真实的自己，开启无限可能。</p>
+            <div class="image-placeholder">[在此处可放置一张宁静的自然风景图片]</div>
+            <p class="intro-text">
+                欢迎来到MBTI人格探索之旅。本测试旨在帮助你更深入地了解自己的性格倾向，而非给你贴上标签。测试包含一系列选择题，请根据你的第一反应，选择最能代表你真实想法的选项。记住，这里没有正确或错误的答案，请放松心情，诚实地面对自己。
+            </p>
+            <button id="start-btn">开启我的旅程</button>
+        </div>
+
+        <!-- 测试问题页面 -->
+        <div id="quiz-screen" class="card">
+            <div id="question-container">
+                <div id="progress-container">
+                    <div id="progress-bar"></div>
+                </div>
+                <p id="progress-text"></p>
+                <h2 id="question-text"></h2>
+                <button class="answer-btn" data-choice="a"></button>
+                <button class="answer-btn" data-choice="b"></button>
+            </div>
+        </div>
+
+        <!-- 结果展示页面 -->
+        <div id="result-screen" class="card">
+            <p>你的测试结果是...</p>
+            <h1 id="personality-type"></h1>
+            <h3 id="personality-title"></h3>
+            <div class="image-placeholder">[在此处可放置一张柔和的抽象艺术图片]</div>
+            <div id="result-details">
+                <!-- JavaScript 会在这里动态填充内容 -->
+            </div>
+            <button id="restart-btn">重新探索一次</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 元素获取
+            const startScreen = document.getElementById('start-screen');
+            const quizScreen = document.getElementById('quiz-screen');
+            const resultScreen = document.getElementById('result-screen');
+            const startBtn = document.getElementById('start-btn');
+            const restartBtn = document.getElementById('restart-btn');
+            const questionText = document.getElementById('question-text');
+            const answerButtons = document.querySelectorAll('.answer-btn');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+
+            // 测试问题库 (20题，每个维度5题)
+            // 维度：E-外向 vs I-内向, N-直觉 vs S-实感, F-情感 vs T-思考, P-感知 vs J-判断
+            const questions = [
+                // E/I
+                { text: "在社交聚会后，你通常感觉：", a: { text: "精力充沛，意犹未尽", trait: "E" }, b: { text: "有些疲惫，需要独处来充电", trait: "I" } },
+                { text: "当思考一个复杂问题时，你更倾向于：", a: { text: "大声说出来，和别人讨论", trait: "E" }, b: { text: "在脑海里安静地构思和分析", trait: "I" } },
+                { text: "在团队中，你更喜欢：", a: { text: "成为活跃的参与者，贡献想法", trait: "E" }, b: { text: "成为专注的观察者，深入思考", trait: "I" } },
+                { text: "结识新朋友对你来说：", a: { text: "是一件令人兴奋和愉快的事", trait: "E" }, b: { text: "需要一些时间来建立信任和深度", trait: "I" } },
+                { text: "你的工作台或书桌通常是：", a: { text: "开放的，方便与人交流", trait: "E" }, b: { text: "私密的，能让你集中注意力", trait: "I" } },
+                // S/N
+                { text: "你更信任：", a: { text: "可以触摸和观察到的具体事实", trait: "S" }, b: { text: "你的直觉和对未来可能性的预感", trait: "N" } },
+                { text: "学习新技能时，你更喜欢：", a: { text: "一步一步的实际操作指南", trait: "S" }, b: { text: "理解其背后的核心概念和理论", trait: "N" } },
+                { text: "你描述一件事情时，倾向于：", a: { text: "提供详尽的、真实的细节", trait: "S" }, b: { text: "使用比喻和描绘整体画面", trait: "N" } },
+                { text: "对于未来，你更关注：", a: { text: "基于当前情况的实际规划", trait: "S" }, b: { text: "充满想象的、各种各样的可能性", trait: "N" } },
+                { text: "你更欣赏一部电影的：", a: { text: "逼真的场景和写实的剧情", trait: "S" }, b: { text: "深刻的寓意和象征意义", trait: "N" } },
+                // T/F
+                { text: "做决定时，你首要考虑的是：", a: { text: "客观的逻辑和公正的原则", trait: "T" }, b: { text: "这个决定对相关人员情感上的影响", trait: "F" } },
+                { text: "当朋友遇到困难时，你更可能：", a: { text: "帮助他们分析问题，找出解决方案", trait: "T" }, b: { text: "给予他们情感上的支持和安慰", trait: "F" } },
+                { text: "你更希望被评价为：", a: { text: "一个有能力、头脑清晰的人", trait: "T" }, b: { text: "一个有同情心、温暖善良的人", trait: "F" } },
+                { text: "在工作中发生分歧时，你认为：", a: { text: "坦率的批评对于达成目标是必要的", trait: "T" }, b: { text: "维护团队和谐与良好关系更重要", trait: "F" } },
+                { text: "你更容易被什么说服：", a: { text: "有力的证据和严谨的论证", trait: "T" }, b: { text: "感人肺腑的故事和真诚的请求", trait: "F" } },
+                // J/P
+                { text: "你的生活方式更倾向于：", a: { text: "有计划、有条理，一切尽在掌握", trait: "J" }, b: { text: "随性的、灵活的，享受当下的惊喜", trait: "P" } },
+                { text: "面对一个任务的截止日期，你通常：", a: { text: "提前计划并早早完成，避免压力", trait: "J" }, b: { text: "在压力下更有创造力，临近才完成", trait: "P" } },
+                { text: "旅行时，你喜欢：", a: { text: "制定详细的行程计划并按部就班", trait: "J" }, b: { text: "只有一个大致方向，随心所欲地探索", trait: "P" } },
+                { text: "对于“选择”，你感觉：", a: { text: "做出决定能让你感到安心和踏实", trait: "J" }, b: { text: "保留选择的余地让你感到自由和开放", trait: "P" } },
+                { text: "完成一个项目后，你更倾向于：", a: { text: "立刻清理总结，并计划下一个项目", trait: "J" }, b: { text: "先放松一下，享受完成的时刻再做打算", trait: "P" } }
+            ];
+
+            let currentQuestionIndex = 0;
+            let scores = { E: 0, I: 0, N: 0, S: 0, T: 0, F: 0, J: 0, P: 0 };
+
+            // 开始测试
+            startBtn.addEventListener('click', () => {
+                startScreen.classList.remove('active');
+                quizScreen.classList.add('active');
+                startQuiz();
+            });
+
+            // 重新测试
+            restartBtn.addEventListener('click', () => {
+                resultScreen.classList.remove('active');
+                startScreen.classList.add('active');
+            });
+
+            // 回答问题
+            answerButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const selectedTrait = questions[currentQuestionIndex].choices[button.dataset.choice].trait;
+                    scores[selectedTrait]++;
+                    currentQuestionIndex++;
+                    if (currentQuestionIndex < questions.length) {
+                        showQuestion();
+                    } else {
+                        showResult();
+                    }
+                });
+            });
+
+            function startQuiz() {
+                resetQuiz();
+                shuffleQuestions();
+                showQuestion();
+            }
+
+            function resetQuiz() {
+                scores = { E: 0, I: 0, N: 0, S: 0, T: 0, F: 0, J: 0, P: 0 };
+                currentQuestionIndex = 0;
+            }
+
+            function shuffleQuestions() {
+                for (let i = questions.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [questions[i], questions[j]] = [questions[j], questions[i]];
+                }
+            }
+            
+            function showQuestion() {
+                const question = questions[currentQuestionIndex];
+                questionText.textContent = question.text;
+                answerButtons[0].textContent = question.a.text;
+                answerButtons[1].textContent = question.b.text;
+                updateProgressBar();
+            }
+            
+            function updateProgressBar() {
+                const progress = (currentQuestionIndex / questions.length) * 100;
+                progressBar.style.width = `${progress}%`;
+                progressText.textContent = `进度: ${currentQuestionIndex} / ${questions.length}`;
+            }
+
+            function showResult() {
+                quizScreen.classList.remove('active');
+                resultScreen.classList.add('active');
+                const personality = calculateResult();
+                displayResultDetails(personality);
+                updateProgressBar(); // 完成后进度条满
+            }
+            
+            function calculateResult() {
+                let result = "";
+                result += scores.E > scores.I ? "E" : "I";
+                result += scores.N > scores.S ? "N" : "S";
+                result += scores.T > scores.F ? "T" : "F";
+                result += scores.J > scores.P ? "J" : "P";
+                return result;
+            }
+
+            function displayResultDetails(type) {
+                const personalityData = mbtiData[type];
+                document.getElementById('personality-type').textContent = type;
+                document.getElementById('personality-title').textContent = `“${personalityData.title}”`;
+                const detailsContainer = document.getElementById('result-details');
+                detailsContainer.innerHTML = `
+                    <div class="result-section"><h4>性格解析：</h4><p>${personalityData.description}</p></div>
+                    <div class="result-section"><h4>理想伴侣：</h4><p>你可能会被那些能与你形成互补或产生共鸣的性格所吸引，例如：<strong>${personalityData.partner.join('、')}</strong>。他们能在不同方面给你带来启发和支持。</p></div>
+                    <div class="result-section"><h4>职业发展：</h4><p>你的性格优势使你在以下领域可能大放异彩：</p><ul>${personalityData.careers.map(c => `<li>${c}</li>`).join('')}</ul></div>
+                    <div class="result-section"><h4>契合的朋友：</h4><p>与 <strong>${personalityData.friends.join('、')}</strong> 类型的人做朋友，你们可能会因为相似的价值观或互补的视角而相处融洽。</p></div>
+                    <div class="result-section">
+                        <h4>潜在缺点与成长建议：</h4>
+                        <p><strong>挑战：</strong> ${personalityData.weaknesses.challenge}</p>
+                        <p><strong>建议：</strong> ${personalityData.weaknesses.advice}</p>
+                    </div>
+                `;
+            }
+
+            // MBTI 16种人格的详细数据
+            const mbtiData = {
+                'ISTJ': {
+                    title: "一丝不苟的检察官",
+                    description: "你是一个认真、负责且注重实际的人。你相信事实和逻辑，喜欢有条不紊地生活，并且非常可靠。对你来说，履行职责是头等大事。",
+                    partner: ["ESFP", "ESTP"],
+                    careers: ["会计师", "项目经理", "土木工程师", "图书管理员", "数据分析师"],
+                    friends: ["ISFJ", "ESTJ"],
+                    weaknesses: {
+                        challenge: "有时可能过于固执，对改变持保守态度，不太愿意尝试未经证实的新方法。",
+                        advice: "试着对新观点保持更开放的心态，认识到灵活性有时比严格遵守规则更重要。主动走出舒适区，尝试一些小小的改变。"
+                    }
+                },
+                'ISFJ': {
+                    title: "温暖的守护者",
+                    description: "你富有同情心、忠诚且体贴。你非常关注他人的感受和需求，并乐于提供实际的帮助。你是一个天生的照顾者，渴望创造一个和谐的环境。",
+                    partner: ["ESTP", "ESFP"],
+                    careers: ["护士", "教师", "人力资源专员", "室内设计师", "客户服务经理"],
+                    friends: ["ISTJ", "ESFJ"],
+                    weaknesses: {
+                        challenge: "你可能会过于牺牲自我，忽略自己的需求。同时，你不喜欢冲突，有时会压抑自己的真实想法以维持和谐。",
+                        advice: "学会设定健康的界限，勇敢地说“不”。要明白，表达自己的需求和感受，对于建立真诚健康的关系至关重要。"
+                    }
+                },
+                'INFJ': {
+                    title: "深刻的引路人",
+                    description: "你是一个理想主义者，富有洞察力且充满激情。你追求生活的深层意义，并致力于帮助他人实现潜能。你安静而坚定，拥有强大的内在信念。",
+                    partner: ["ENTP", "ENFP"],
+                    careers: ["心理咨询师", "作家", "非营利组织经理", "人力资源发展顾问", "UX设计师"],
+                    friends: ["INFP", "ENFJ"],
+                    weaknesses: {
+                        challenge: "你可能对现实世界感到失望，因为现实往往达不到你的崇高理想。有时会过于敏感，容易感到倦怠。",
+                        advice: "将你的理想分解为可行的步骤，庆祝每一个小小的成功。同时，学会保护自己的精力，为自己留出独处和充电的时间。"
+                    }
+                },
+                'INTJ': {
+                    title: "独立的战略家",
+                    description: "你是一个富有想象力、雄心勃勃的战略思想家。你对知识充满渴望，善于发现系统中的模式和逻辑。你独立、果断，总是在寻求改进一切。",
+                    partner: ["ENFP", "ENTP"],
+                    careers: ["科学家", "软件开发人员", "建筑师", "金融分析师", "管理顾问"],
+                    friends: ["INTP", "ENTJ"],
+                    weaknesses: {
+                        challenge: "有时可能显得傲慢或不近人情，对情感层面的考虑不足。对他人的能力和效率有过高的期望。",
+                        advice: "练习换位思考，主动去理解他人的情感和观点。学会在合作中欣赏他人的贡献，即使他们的方式与你不同。"
+                    }
+                },
+                'ISTP': {
+                    title: "冷静的工匠",
+                    description: "你是一个充满好奇心和创造力的探索者。你喜欢用双手和眼睛去探索世界，理解事物是如何运作的。你冷静、理性，在危机中能保持镇定。",
+                    partner: ["ESFJ", "ESTJ"],
+                    careers: ["机械工程师", "飞行员", "急诊医生", "程序员", "系统分析师"],
+                    friends: ["ISFP", "ESTP"],
+                    weaknesses: {
+                        challenge: "可能难以做出长期承诺，对例行公事感到厌烦。有时会显得过于疏离，不善于表达内心情感。",
+                        advice: "尝试为自己设定一些中长期目标，并将其分解成有趣的小挑战。在与亲近的人相处时，有意识地分享一些自己的感受。"
+                    }
+                },
+                'ISFP': {
+                    title: "温柔的艺术家",
+                    description: "你是一个随和、迷人且富有艺术气息的冒险家。你活在当下，享受生活中的美感和新体验。你对他人敏感且友善，但内心世界非常独立。",
+                    partner: ["ESFJ", "ESTJ"],
+                    careers: ["平面设计师", "厨师", "兽医", "时装设计师", "摄影师"],
+                    friends: ["ISTP", "ESFP"],
+                    weaknesses: {
+                        challenge: "你极度不喜欢冲突和批评，可能会不惜一切代价避免它们。在规划未来方面可能稍显欠缺。",
+                        advice: "将批评视为成长的机会，而非人身攻击。尝试用一种轻松的方式（如制作愿景板）来思考未来，让规划变得有趣。"
+                    }
+                },
+                'INFP': {
+                    title: "理想的调停者",
+                    description: "你是一个充满诗意、善良的利他主义者。你总是渴望从最坏的人和事中寻找最好的一面，并致力于让世界变得更美好。你由内在的价值观和信念驱动。",
+                    partner: ["ENTJ", "ENFJ"],
+                    careers: ["作家", "非营利组织工作者", "心理学家", "翻译", "图书编辑"],
+                    friends: ["INFJ", "ENFP"],
+                    weaknesses: {
+                        challenge: "可能过于理想化，当现实与理想不符时容易感到失落。有时会觉得自己的努力微不足道而陷入自我怀疑。",
+                        advice: "接受世界的不完美，并专注于自己能产生实际影响的小事上。学会欣赏自己的独特贡献，无论大小。"
+                    }
+                },
+                'INTP': {
+                    title: "睿智的逻辑学家",
+                    description: "你对知识有着永不满足的渴望，是一个天生的思想家和问题解决者。你着迷于抽象概念和逻辑分析，总是在寻找宇宙的普遍规律。",
+                    partner: ["ENTJ", "ENFJ"],
+                    careers: ["物理学家", "大学教授", "计算机科学家", "经济学家", "哲学研究者"],
+                    friends: ["INTJ", "ENTP"],
+                    weaknesses: {
+                        challenge: "可能陷入“分析瘫痪”，过于沉浸在思考中而缺乏实际行动。有时会忽略社交礼仪和人际关系。",
+                        advice: "为你的想法设定一个“截止日期”，然后付诸实践，哪怕它还不完美。有意识地花时间维系重要的人际关系。"
+                    }
+                },
+                'ESTP': {
+                    title: "充满活力的企业家",
+                    description: "你聪明、精力充沛且善于洞察。你喜欢活在行动的中心，并能快速应对眼前的挑战。你享受冒险和刺激，是天生的风险承担者。",
+                    partner: ["ISFJ", "ISTJ"],
+                    careers: ["销售总监", "消防员", "市场营销经理", "企业家", "体育教练"],
+                    friends: ["ESTJ", "ISTP"],
+                    weaknesses: {
+                        challenge: "可能缺乏耐心，对理论和长期计划不感兴趣。有时会因为追求刺激而做出鲁莽的决定。",
+                        advice: "在行动前，花一点时间思考长远后果。学会欣赏规划的价值，它能让你的行动更有效率。"
+                    }
+                },
+                'ESFP': {
+                    title: "热情的表演者",
+                    description: "你是一个自发、精力充沛且热情的娱乐家。你喜欢成为众人瞩目的焦点，并用你的魅力和幽默感染周围的每一个人。你享受生活，活在当下。",
+                    partner: ["ISTJ", "ISFJ"],
+                    careers: ["演员", "活动策划", "导游", "销售顾问", "主持人"],
+                    friends: ["ESFJ", "ISFP"],
+                    weaknesses: {
+                        challenge: "不喜欢处理冲突和批评，可能会忽略生活中的消极方面。对未来的规划可能不足。",
+                        advice: "勇敢面对问题，而不是回避它。学习一些简单的理财和规划技巧，能让你在享受当下的同时，也为未来做好准备。"
+                    }
+                },
+                'ENFP': {
+                    title: "自由的追梦人",
+                    description: "你富有魅力、独立、精力充沛且富有同情心。你总能看到生活中的无限可能，并能轻易地与他人建立情感联系。你是一个天生的激励者和沟通者。",
+                    partner: ["INTJ", "INFJ"],
+                    careers: ["公关专员", "记者", "创意总监", "职业规划师", "广告策划"],
+                    friends: ["ENFJ", "INFP"],
+                    weaknesses: {
+                        challenge: "可能难以坚持完成一个项目，因为新的想法总在不断涌现。有时会因为想取悦所有人而过度承诺。",
+                        advice: "学会筛选你的想法，并专注于完成最重要的几个。在承诺之前，给自己一些思考时间，确保你有能力兑现。"
+                    }
+                },
+                'ENTP': {
+                    title: "机智的辩论家",
+                    description: "你是一个大胆、富有创造力且思维敏捷的思想家。你喜欢挑战权威和现有观念，享受唇枪舌战的快感。没有什么比一场思想的交锋更让你兴奋了。",
+                    partner: ["INFJ", "INTJ"],
+                    careers: ["律师", "企业家", "政治顾问", "风险投资家", "头脑风暴主持人"],
+                    friends: ["ENTJ", "INTP"],
+                    weaknesses: {
+                        challenge: "可能被认为好辩和不敏感。对细节和执行缺乏耐心，容易半途而废。",
+                        advice: "在辩论时，注意方式方法，尊重他人的感受。尝试与注重细节的人合作，将你的宏大构想变为现实。"
+                    }
+                },
+                'ESTJ': {
+                    title: "高效的管理者",
+                    description: "你是一个出色的组织者和管理者，致力于维护秩序和传统。你珍视逻辑和效率，相信有一个正确的方式来做事，并乐于将人们组织起来达成目标。",
+                    partner: ["ISTP", "ISFP"],
+                    careers: ["企业高管", "法官", "酒店经理", "财务总监", "军事指挥官"],
+                    friends: ["ESTP", "ISTJ"],
+                    weaknesses: {
+                        challenge: "可能显得固执、缺乏变通，难以接受不符合自己标准的新想法。有时会忽略他人的情感需求。",
+                        advice: "认识到达成目标的路径不止一条。在做决定时，有意识地询问他人的意见和感受，这会让你成为更受欢迎的领导者。"
+                    }
+                },
+                'ESFJ': {
+                    title: "热心的东道主",
+                    description: "你非常关心他人，善于社交且广受欢迎。你喜欢通过组织社交活动来照顾大家，并从中获得巨大的满足感。你是一个天生的社群建设者。",
+                    partner: ["ISFP", "ISTP"],
+                    careers: ["销售代表", "社工", "客户关系经理", "小学教师", "婚礼策划师"],
+                    friends: ["ESFP", "ISFJ"],
+                    weaknesses: {
+                        challenge: "非常在意自己的社会地位和他人对自己的看法，渴望得到认可。面对批评时会非常受伤。",
+                        advice: "将你的自我价值建立在内在标准上，而不是他人的赞美上。学会客观看待批评，将其视为改进的反馈。"
+                    }
+                },
+                'ENFJ': {
+                    title: "鼓舞人心的主人公",
+                    description: "你富有魅力和激情，是天生的领导者。你充满利他主义精神，能够鼓舞他人去实现梦想，并为世界带来积极的改变。你总能感受到他人的潜力。",
+                    partner: ["INFP", "INTP"],
+                    careers: ["教师", "外交官", "销售经理", "企业教练", "人力资源总监"],
+                    friends: ["ENFP", "INFJ"],
+                    weaknesses: {
+                        challenge: "可能过于理想化，对他人的问题投入过多情感，容易感到倦怠。有时会为了和谐而过度妥协。",
+                        advice: "设定健康的个人边界，确保在帮助他人的同时，也照顾好自己。坚守自己的核心原则，即使这会带来一些分歧。"
+                    }
+                },
+                'ENTJ': {
+                    title: "果敢的指挥官",
+                    description: "你是一个大胆、富有想象力且意志坚强的领导者。你总能找到或创造出解决问题的方法，并享受实现宏伟目标的挑战。你天生就具有权威性和信心。",
+                    partner: ["INFP", "INTP"],
+                    careers: ["CEO", "律师", "管理顾问", "大学校长", "城市规划师"],
+                    friends: ["ENTP", "INTJ"],
+                    weaknesses: {
+                        challenge: "可能显得专横和没有耐心，尤其对那些效率不高或优柔寡断的人。在追求目标时可能会忽略他人的情感。",
+                        advice: "练习积极倾听，花时间去理解团队成员的观点。认识到情感也是决策的重要组成部分，培养同理心会让你更强大。"
+                    }
+                }
+            };
+        });
+    </script>
+</body>
+</html>
